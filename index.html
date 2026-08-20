@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#0d9488">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Tansumgo Go">
+<meta name="format-detection" content="telephone=no">
+<title>Tansumgo Go - ระบบวิเคราะห์สถิติการเข้าเรียนเรียลไทม์</title>
+<meta name="description" content="ระบบวิเคราะห์และแสดงผลสถิติการเข้าเรียนเรียลไทม์ ม.1-ม.6 โดย Tansumgo Go">
+<meta property="og:title" content="Tansumgo Go - ระบบวิเคราะห์สถิติการเข้าเรียนเรียลไทม์">
+<meta property="og:description" content="ระบบวิเคราะห์และแสดงผลสถิติการเข้าเรียนเรียลไทม์ ม.1-ม.6 พร้อมผู้ช่วยวิเคราะห์ Timi AI">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://funcgines.github.io/tansumgo/">
+<meta property="og:image" content="https://funcgines.github.io/tansumgo/promo.webp">
+<meta property="og:site_name" content="Tansumgo Go">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Tansumgo Go - ระบบวิเคราะห์สถิติการเข้าเรียนเรียลไทม์">
+<meta name="twitter:description" content="ระบบวิเคราะห์และแสดงผลสถิติการเข้าเรียนเรียลไทม์ ม.1-ม.6 พร้อมผู้ช่วยวิเคราะห์ Timi AI">
+<meta name="twitter:image" content="https://funcgines.github.io/tansumgo/promo.webp">
+<link rel="manifest" href="./manifest.json">
+<link rel="icon" href="./icon.webp" type="image/webp">
+<link rel="apple-touch-icon" href="./icon.webp">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>tailwind.config={darkMode:'class'}</script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+@font-face{font-family:'FGSans';src:url('./FuncGinesSansEvoMedium.ttf') format('truetype');font-weight:400 500;font-display:swap}
+@font-face{font-family:'FGSans';src:url('./FuncGinesSansEvoBold.ttf') format('truetype');font-weight:600 800;font-display:swap}
+@font-face{font-family:'ThaiUI';src:url('./NotoSansThaiUI-Regular.ttf') format('truetype');font-weight:400;font-display:swap}
+@font-face{font-family:'ThaiUI';src:url('./NotoSansThaiUI-Bold.ttf') format('truetype');font-weight:700;font-display:swap}
+@font-face{font-family:'ThaiBase';src:url('./NotoSansThai-Regular.ttf') format('truetype');font-weight:400;font-display:swap}
+@font-face{font-family:'ThaiBase';src:url('./NotoSansThai-Bold.ttf') format('truetype');font-weight:700;font-display:swap}
+@font-face{font-family:'FGBlack';src:url('./SourceSansProBlack.ttf') format('truetype');font-weight:900;font-display:swap}
+@font-face{font-family:'FGEmoji';src:url('./FuncGinesEmojiEvo.ttf') format('truetype');font-display:swap}
+:root{--fgstack:'FGSans','ThaiUI','ThaiBase',sans-serif,'FGEmoji'}
+*{-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
+input,textarea,select,.ai-selectable{-webkit-user-select:text;user-select:text;-webkit-touch-callout:default}
+img{-webkit-user-drag:none;user-drag:none;pointer-events:none}
+html,body{overscroll-behavior:none;overflow-x:hidden}
+body{font-family:var(--fgstack);background-color:#f1f5f9;transition:background-color .3s,color .3s}
+.font-black-fg{font-family:'FGBlack','FGSans',sans-serif}
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:#f1f5f9}
+::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:4px}
+::-webkit-scrollbar-thumb:hover{background:#94a3b8}
+html.dark body{background-color:#0b1220;color:#e2e8f0}
+html.dark ::-webkit-scrollbar-track{background:#0b1220}
+html.dark .bg-white{background-color:#151f30!important}
+html.dark .bg-slate-50{background-color:#0f1929!important}
+html.dark .bg-slate-100{background-color:#1e293b!important}
+html.dark .bg-slate-950{background-color:#05070c!important}
+html.dark .text-slate-800{color:#e5eaf1!important}
+html.dark .text-slate-700{color:#cbd5e1!important}
+html.dark .text-slate-600{color:#94a3b8!important}
+html.dark .text-slate-500{color:#7f8fa6!important}
+html.dark .text-slate-400{color:#64748b!important}
+html.dark .border-slate-200{border-color:#263449!important}
+html.dark .border-slate-100{border-color:#1e293b!important}
+html.dark .divide-slate-100>*{border-color:#1e293b!important}
+html.dark .bg-teal-50{background-color:rgba(13,148,136,.12)!important}
+html.dark .hover\:bg-slate-50:hover{background-color:#1c2942!important}
+#installGate{position:fixed;inset:0;z-index:9999;background:radial-gradient(circle at top,#0f766e,#0f172a 70%);display:flex;align-items:center;justify-content:center;padding:24px}
+#appRoot{transition:filter .3s}
+#appRoot.locked{filter:blur(12px);pointer-events:none;user-select:none;height:100vh;overflow:hidden}
+.fishegg-loader{display:flex;gap:6px;align-items:center;justify-content:center;padding:18px}
+.fishegg-loader span{width:9px;height:9px;border-radius:999px;background:linear-gradient(135deg,#0d9488,#0ea5e9);display:inline-block;animation:fishegg 1s infinite ease-in-out}
+.fishegg-loader span:nth-child(2){animation-delay:.12s}
+.fishegg-loader span:nth-child(3){animation-delay:.24s}
+.fishegg-loader span:nth-child(4){animation-delay:.36s}
+.fishegg-loader span:nth-child(5){animation-delay:.48s}
+@keyframes fishegg{0%,80%,100%{transform:scale(.5);opacity:.4}40%{transform:scale(1.15);opacity:1}}
+.ai-word{display:inline-block;opacity:0;transform:translateY(8px);animation:aiWordIn .5s ease forwards}
+@keyframes aiWordIn{to{opacity:1;transform:translateY(0)}}
+@media print{#installGate,header,.no-print{display:none!important}body{background:#fff!important}#appRoot{filter:none!important}}
+.tap-fx:active{transform:scale(.96);opacity:.9}
+</style>
+</head>
+<body class="text-slate-800 transition-colors duration-300">
+<div id="installGate">
+<div class="max-w-sm w-full bg-white/95 rounded-3xl shadow-2xl p-7 text-center space-y-4 border border-white/10">
+<img src="./icon.webp" alt="Tansumgo Go" class="w-24 h-24 mx-auto rounded-2xl shadow-lg">
+<div>
+<h1 class="text-xl font-bold text-slate-800">Tansumgo Go</h1>
+<p class="text-xs text-slate-500 mt-1">ระบบวิเคราะห์สถิติการเข้าเรียนเรียลไทม์</p>
+</div>
+<div id="gateBody" class="space-y-3">
+<p class="text-xs text-slate-600 leading-relaxed">แอปนี้ต้องติดตั้งลงเครื่องก่อนใช้งาน เพื่อประสบการณ์ที่ลื่นไหลและปลอดภัยที่สุด กรุณากดปุ่มด้านล่างเพื่อติดตั้ง</p>
+<button id="installBtn" onclick="handleInstallClick()" class="tap-fx w-full bg-gradient-to-r from-teal-600 to-emerald-600 text-white font-bold text-sm py-3 rounded-xl shadow-lg flex items-center justify-center gap-2 transition-transform">
+<i class="fa-solid fa-download"></i><span>ติดตั้งแอป Tansumgo Go</span>
+</button>
+<p id="gateHint" class="text-[11px] text-slate-400"></p>
+</div>
+</div>
+</div>
+<div id="appRoot" class="locked">
+<header class="sticky top-0 z-40 bg-gradient-to-r from-cyan-700 via-teal-600 to-emerald-600 text-white shadow-md">
+<div class="max-w-7xl mx-auto px-4 py-3 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-4">
+<div class="flex items-center gap-3">
+<div class="bg-white/20 p-2.5 rounded-lg backdrop-blur-sm border border-white/10"><img src="./icon.webp" class="w-7 h-7 rounded-md"></div>
+<div>
+<h1 class="text-lg sm:text-xl font-bold tracking-tight">Tansumgo Go</h1>
+<p class="text-xs text-cyan-100/90 flex items-center gap-1.5 mt-0.5"><span class="inline-block w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>ระบบสถานะ มา, ขาด, ลา, หลบเรียน ม.1 - ม.6</p>
+</div>
+</div>
+<div class="flex flex-wrap items-center gap-3 w-full md:w-auto justify-end">
+<div class="bg-black/15 px-3 py-1.5 rounded-lg text-xs font-medium border border-white/5 flex items-center gap-2">
+<span id="syncStatus">พร้อมใช้งาน</span><span id="lastUpdated" class="text-cyan-200">ยังไม่ได้อัปเดต</span>
+</div>
+<button onclick="toggleDarkMode()" class="tap-fx bg-white/15 hover:bg-white/25 text-white px-3 py-1.5 rounded-lg text-sm transition-all"><i id="darkIcon" class="fa-solid fa-moon"></i></button>
+<button id="refreshBtn" onclick="fetchData()" class="tap-fx bg-white text-teal-800 hover:bg-cyan-50 transition-all px-4 py-1.5 rounded-lg text-sm font-semibold shadow-sm flex items-center gap-2"><i id="refreshIcon" class="fa-solid fa-rotate-right"></i><span>ดึงข้อมูลสด</span></button>
+</div>
+</div>
+</header>
+<main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+<section class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 space-y-3">
+<div class="flex items-center justify-between border-b border-slate-100 pb-2">
+<div class="flex items-center gap-2"><i class="fa-solid fa-graduation-cap text-teal-600 text-lg"></i><h3 class="font-bold text-sm sm:text-base text-slate-700">ระดับชั้นเรียนหลัก</h3></div>
+<span class="text-[10px] text-slate-400 bg-slate-100 px-2.5 py-1 rounded-full font-bold">เลือกสลับเพื่อดูข้อมูลรายชั้น</span>
+</div>
+<div class="grid grid-cols-3 sm:grid-cols-6 gap-2" id="gradeTabsContainer"></div>
+</section>
+<div id="emptyState" class="hidden bg-white border border-slate-200 text-slate-500 rounded-xl p-10 text-center space-y-3">
+<i class="fa-solid fa-satellite-dish text-3xl text-teal-400 animate-pulse"></i>
+<p class="text-xs">กำลังเชื่อมต่อข้อมูล...</p>
+</div>
+<div id="dashboardContent" class="space-y-6">
+<section class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 space-y-3">
+<div class="flex items-center gap-2 border-b border-slate-100 pb-2"><i class="fa-solid fa-school text-teal-600"></i><h3 class="font-bold text-sm text-slate-700">สลับห้องเรียน (ตรวจพบอัตโนมัติจากไฟล์)</h3></div>
+<div id="roomTabsContainer" class="flex flex-wrap gap-2"><div class="text-xs text-slate-400 py-1">กำลังสแกนหาชั้นเรียนจากแผ่นงาน...</div></div>
+</section>
+<div class="bg-teal-50 border border-teal-200/80 rounded-xl px-4 py-3 flex flex-wrap items-center justify-between gap-3">
+<div class="flex items-center gap-2"><span class="bg-teal-600 text-white font-bold text-xs px-2.5 py-1 rounded">กำลังเลือกห้อง</span><span id="activeRoomLabel" class="font-bold text-teal-900 text-sm">--</span></div>
+<div class="flex items-center gap-3"><span class="text-xs text-slate-500 font-semibold uppercase">ตัวกรองรายวิชาปัจจุบัน:</span>
+<select id="activeSubjectFilter" onchange="changeActiveSubject()" class="text-xs font-bold text-teal-800 bg-white border border-teal-300 rounded-lg py-1 px-2.5 focus:ring-1 focus:ring-teal-500 focus:outline-none"><option value="all">-- ภาพรวมทุกวิชา --</option></select>
+</div>
+</div>
+<section class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+<div class="bg-white rounded-xl p-4 sm:p-5 shadow-sm border border-slate-200 flex items-center gap-4 transition-all hover:shadow-md">
+<div class="p-3 bg-cyan-50 text-cyan-600 rounded-lg hidden sm:block"><i class="fa-solid fa-users text-2xl"></i></div>
+<div><p class="text-xs font-semibold text-slate-500">จำนวนนักเรียนในห้อง</p><h3 id="statTotalStudents" class="text-xl sm:text-3xl font-black-fg text-slate-800 mt-1">--</h3><p class="text-slate-400 text-[10px] mt-0.5">ในห้องเรียนที่สลับเลือกปัจจุบัน</p></div>
+</div>
+<div class="bg-white rounded-xl p-4 sm:p-5 shadow-sm border border-slate-200 flex items-center gap-4 transition-all hover:shadow-md">
+<div class="p-3 bg-emerald-50 text-emerald-600 rounded-lg hidden sm:block"><i class="fa-solid fa-circle-check text-2xl"></i></div>
+<div><p class="text-xs font-semibold text-slate-500">อัตราการเข้าเรียนเฉลี่ย</p><div class="flex items-baseline gap-1 mt-1"><h3 id="statAttendanceRate" class="text-xl sm:text-3xl font-black-fg text-slate-800">--</h3><span class="text-sm font-semibold text-slate-500">%</span></div><p class="text-emerald-600 text-[10px] mt-0.5" id="attendanceQuality">กำลังประมวลผล...</p></div>
+</div>
+<div class="bg-white rounded-xl p-4 sm:p-5 shadow-sm border border-slate-200 flex items-center gap-4 transition-all hover:shadow-md">
+<div class="p-3 bg-amber-50 text-amber-600 rounded-lg hidden sm:block"><i class="fa-solid fa-user-ninja text-2xl"></i></div>
+<div><p class="text-xs font-semibold text-slate-500">จำนวนหลบเรียนสะสม</p><div class="flex items-baseline gap-1 mt-1"><h3 id="statTotalEscape" class="text-xl sm:text-3xl font-black-fg text-slate-800">--</h3><span class="text-xs font-medium text-slate-500">ครั้ง</span></div><p class="text-amber-600 text-[10px] mt-0.5" id="escapeRatio">--</p></div>
+</div>
+<div class="bg-white rounded-xl p-4 sm:p-5 shadow-sm border border-slate-200 flex items-center gap-4 transition-all hover:shadow-md">
+<div class="p-3 bg-rose-50 text-rose-600 rounded-lg hidden sm:block"><i class="fa-solid fa-circle-xmark text-2xl"></i></div>
+<div><p class="text-xs font-semibold text-slate-500">จำนวนขาดเรียนสะสม</p><div class="flex items-baseline gap-1 mt-1"><h3 id="statTotalAbsent" class="text-xl sm:text-3xl font-black-fg text-slate-800">--</h3><span class="text-xs font-medium text-slate-500">ครั้ง</span></div><p class="text-rose-600 text-[10px] mt-0.5" id="absentRatio">--</p></div>
+</div>
+</section>
+<section class="bg-gradient-to-r from-indigo-50 to-teal-50 border border-indigo-100 rounded-xl p-4 sm:p-5 flex items-start gap-3">
+<i class="fa-solid fa-wand-magic-sparkles text-indigo-500 text-lg mt-0.5"></i>
+<div><h4 class="text-xs font-bold text-indigo-800 mb-1">ข้อมูลเชิงลึกอัตโนมัติ</h4><p id="autoInsightText" class="text-xs text-slate-600 leading-relaxed">กำลังวิเคราะห์ความสัมพันธ์ของข้อมูล...</p></div>
+</section>
+<section class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+<div class="bg-white rounded-xl p-4 sm:p-6 shadow-sm border border-slate-200 lg:col-span-8 flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between mb-4"><div><h3 class="text-base sm:text-lg font-bold text-slate-800" id="chartTitle">สถิติอัตราเข้าเรียนแยกตามรายวิชา</h3><p class="text-xs text-slate-500" id="chartSubTitle">เปรียบเทียบแนวโน้มร้อยละของรายวิชาทั้งหมดในห้องนี้</p></div><span class="text-[10px] bg-teal-50 text-teal-700 px-2 py-1 rounded font-semibold uppercase">วิเคราะห์</span></div>
+<div class="relative w-full h-[250px] sm:h-[300px]"><canvas id="trendChart"></canvas></div>
+</div>
+</div>
+<div class="bg-white rounded-xl p-4 sm:p-6 shadow-sm border border-slate-200 lg:col-span-4 flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between mb-4"><div><h3 class="text-base sm:text-lg font-bold text-slate-800">อัตราส่วนสถานะทั้งหมด</h3><p class="text-xs text-slate-500">จำแนกตามครั้งบันทึกทั้งหมดของห้องและเงื่อนไขวิชา</p></div><span class="text-[10px] bg-emerald-50 text-emerald-700 px-2 py-1 rounded font-semibold uppercase">สัดส่วน</span></div>
+<div class="relative w-full h-[220px] sm:h-[250px] flex items-center justify-center"><canvas id="distributionChart"></canvas></div>
+</div>
+<div class="grid grid-cols-4 gap-1 text-[11px] text-center border-t border-slate-100 pt-3 mt-4">
+<div><div class="font-bold text-emerald-600" id="legendPresentPct">0%</div><div class="text-slate-400">มาเรียน</div></div>
+<div><div class="font-bold text-amber-500" id="legendEscapePct">0%</div><div class="text-slate-400">หลบเรียน</div></div>
+<div><div class="font-bold text-rose-500" id="legendAbsentPct">0%</div><div class="text-slate-400">ขาดเรียน</div></div>
+<div><div class="font-bold text-sky-500" id="legendLeavePct">0%</div><div class="text-slate-400">ลาเรียน</div></div>
+</div>
+</div>
+</section>
+<section class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+<div class="bg-white rounded-xl p-4 sm:p-5 shadow-sm border border-slate-200 lg:col-span-6 space-y-3">
+<h3 class="text-sm font-bold text-slate-800 flex items-center gap-2"><i class="fa-solid fa-ranking-star text-rose-500"></i>ดัชนีความเสี่ยงรายวิชา (แย่ที่สุด 5 อันดับ)</h3>
+<div id="subjectRiskList" class="space-y-2 text-xs"></div>
+</div>
+<div class="bg-white rounded-xl p-4 sm:p-5 shadow-sm border border-slate-200 lg:col-span-6 space-y-3">
+<h3 class="text-sm font-bold text-slate-800 flex items-center gap-2"><i class="fa-solid fa-trophy text-amber-500"></i>อันดับนักเรียนเข้าเรียนดีเด่น / เฝ้าระวัง</h3>
+<div class="grid grid-cols-2 gap-3">
+<div><p class="text-[10px] font-bold text-emerald-600 mb-1">ดีเด่น</p><div id="leaderboardGood" class="space-y-1 text-xs"></div></div>
+<div><p class="text-[10px] font-bold text-rose-600 mb-1">เฝ้าระวัง</p><div id="leaderboardBad" class="space-y-1 text-xs"></div></div>
+</div>
+</div>
+</section>
+<section class="bg-white rounded-xl shadow-sm border border-slate-200 p-4 sm:p-5 space-y-4">
+<div class="flex items-center justify-between">
+<h3 class="text-sm font-bold text-slate-800 flex items-center gap-2"><i class="fa-solid fa-chart-column text-indigo-600"></i>การวิเคราะห์เชิงสถิติขั้นสูง</h3>
+<button onclick="toggleExecReport()" id="execToggleBtn" class="tap-fx text-xs font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-1.5 rounded-lg flex items-center gap-1.5"><i class="fa-solid fa-file-lines"></i>สรุปผู้บริหาร</button>
+</div>
+<div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+<div class="bg-slate-50 rounded-xl p-3 border border-slate-200 text-center"><p class="text-[10px] text-slate-500 font-semibold">ค่าเฉลี่ย (Mean)</p><p id="statMean" class="text-lg font-black-fg text-slate-800 mt-1">--</p></div>
+<div class="bg-slate-50 rounded-xl p-3 border border-slate-200 text-center"><p class="text-[10px] text-slate-500 font-semibold">ค่ามัธยฐาน (Median)</p><p id="statMedian" class="text-lg font-black-fg text-slate-800 mt-1">--</p></div>
+<div class="bg-slate-50 rounded-xl p-3 border border-slate-200 text-center"><p class="text-[10px] text-slate-500 font-semibold">ส่วนเบี่ยงเบนมาตรฐาน</p><p id="statStdDev" class="text-lg font-black-fg text-slate-800 mt-1">--</p></div>
+<div class="bg-slate-50 rounded-xl p-3 border border-slate-200 text-center"><p class="text-[10px] text-slate-500 font-semibold">ดัชนีความสม่ำเสมอ</p><p id="statConsistency" class="text-lg font-black-fg text-slate-800 mt-1">--</p></div>
+</div>
+<div id="execReportPanel" class="hidden border-t border-slate-100 pt-4 space-y-3">
+<h4 class="text-xs font-bold text-slate-700 uppercase tracking-wide">ข้อเสนอแนะเชิงนโยบายอัตโนมัติ</h4>
+<ul id="recommendationList" class="space-y-2 text-xs text-slate-600 list-none"></ul>
+</div>
+</section>
+<section class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+<div class="bg-white rounded-xl p-4 sm:p-5 shadow-sm border border-slate-200 lg:col-span-6 space-y-3">
+<h3 class="text-sm font-bold text-slate-800 flex items-center gap-2"><i class="fa-solid fa-gauge-high text-indigo-500"></i>ดัชนีประสิทธิภาพการเข้าเรียน (AES) 10 อันดับแรก</h3>
+<div id="aesList" class="space-y-2 text-xs"></div>
+</div>
+<div class="bg-white rounded-xl p-4 sm:p-5 shadow-sm border border-slate-200 lg:col-span-6 space-y-3">
+<h3 class="text-sm font-bold text-slate-800 flex items-center gap-2"><i class="fa-solid fa-people-arrows text-teal-600"></i>เปรียบเทียบนักเรียนรายบุคคล</h3>
+<div class="flex gap-2">
+<select id="compareStudentA" class="flex-1 text-xs border border-slate-300 rounded-lg py-1.5 px-2 bg-white"></select>
+<select id="compareStudentB" class="flex-1 text-xs border border-slate-300 rounded-lg py-1.5 px-2 bg-white"></select>
+</div>
+<button onclick="runStudentCompare()" class="tap-fx w-full text-xs font-bold bg-teal-50 hover:bg-teal-100 text-teal-700 py-1.5 rounded-lg">เปรียบเทียบ</button>
+<div class="relative w-full h-[180px]"><canvas id="compareStudentChart"></canvas></div>
+</div>
+</section>
+<section class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+<div class="bg-white rounded-xl p-4 sm:p-5 shadow-sm border border-slate-200 lg:col-span-4 space-y-4">
+<div><h3 class="text-base font-bold text-slate-800 flex items-center gap-2"><i class="fa-solid fa-triangle-exclamation text-amber-500"></i>กลุ่มนักเรียนที่ต้องเฝ้าระวัง</h3><p class="text-xs text-slate-500 mt-0.5">นักเรียนที่มีอัตราการเข้าเรียนเฉลี่ยรวมทุกวิชาน้อยกว่า 80%</p></div>
+<div id="riskStudentsList" class="space-y-3 max-h-[420px] overflow-y-auto pr-1"><div class="text-center py-8 text-slate-400 text-xs"><i class="fa-solid fa-circle-check text-2xl text-emerald-500 mb-2 block"></i>ไม่มีนักเรียนต่ำกว่าเกณฑ์การเฝ้าระวัง</div></div>
+</div>
+<div class="bg-white rounded-xl p-4 sm:p-5 shadow-sm border border-slate-200 lg:col-span-8 space-y-4">
+<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+<div><h3 class="text-base sm:text-lg font-bold text-teal-800">ตารางสถิตินักเรียนรายบุคคล</h3><p class="text-xs text-slate-500">คำนวณแยกตามคลาสและวิชาที่ท่านคัดกรองอยู่ปัจจุบัน</p></div>
+<div class="flex flex-wrap items-center gap-2">
+<div class="relative w-full sm:w-40"><input type="text" id="tableSearch" onkeyup="filterTable()" placeholder="ค้นหารายชื่อ..." class="w-full pl-8 pr-3 py-1.5 border border-slate-300 rounded-lg text-xs focus:ring-1 focus:ring-teal-500 focus:outline-none"><span class="absolute inset-y-0 left-0 pl-2.5 flex items-center text-slate-400"><i class="fa-solid fa-magnifying-glass text-xs"></i></span></div>
+<select id="attendancePerfFilter" onchange="filterTable()" class="py-1.5 px-2 border border-slate-300 rounded-lg text-xs focus:ring-1 focus:ring-teal-500 focus:outline-none bg-white"><option value="all">ทั้งหมด</option><option value="at-risk">เฝ้าระวัง (<80%)</option><option value="good">ผ่านเกณฑ์ (>=80%)</option></select>
+<button onclick="exportCsv()" class="tap-fx text-xs font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-1.5 rounded-lg flex items-center gap-1.5"><i class="fa-solid fa-file-csv"></i>CSV</button>
+<button onclick="exportExcel()" class="tap-fx text-xs font-bold bg-emerald-50 hover:bg-emerald-100 text-emerald-700 px-3 py-1.5 rounded-lg flex items-center gap-1.5"><i class="fa-solid fa-file-excel"></i>Excel</button>
+<button onclick="window.print()" class="tap-fx text-xs font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-1.5 rounded-lg flex items-center gap-1.5"><i class="fa-solid fa-print"></i>พิมพ์</button>
+</div>
+</div>
+<div class="overflow-x-auto border border-slate-100 rounded-lg">
+<table class="w-full text-left border-collapse text-xs">
+<thead><tr class="bg-slate-50 border-b border-slate-200 text-slate-600 font-bold"><th class="p-3 text-center cursor-pointer select-none" onclick="sortTableBy('no')">ลำดับ<i class="fa-solid fa-sort text-[9px] ml-1 text-slate-300"></i></th><th class="p-3 cursor-pointer select-none" onclick="sortTableBy('classRoom')">ชั้นเรียน<i class="fa-solid fa-sort text-[9px] ml-1 text-slate-300"></i></th><th class="p-3 cursor-pointer select-none" onclick="sortTableBy('name')">ชื่อ - นามสกุล<i class="fa-solid fa-sort text-[9px] ml-1 text-slate-300"></i></th><th class="p-3 text-center text-emerald-600 cursor-pointer select-none" onclick="sortTableBy('present')">มา<i class="fa-solid fa-sort text-[9px] ml-1 text-slate-300"></i></th><th class="p-3 text-center text-amber-500 cursor-pointer select-none" onclick="sortTableBy('escape')">หลบ<i class="fa-solid fa-sort text-[9px] ml-1 text-slate-300"></i></th><th class="p-3 text-center text-rose-500 cursor-pointer select-none" onclick="sortTableBy('absent')">ขาด<i class="fa-solid fa-sort text-[9px] ml-1 text-slate-300"></i></th><th class="p-3 text-center text-sky-500 cursor-pointer select-none" onclick="sortTableBy('leave')">ลา<i class="fa-solid fa-sort text-[9px] ml-1 text-slate-300"></i></th><th class="p-3 text-right cursor-pointer select-none" onclick="sortTableBy('percent')">เปอร์เซ็นต์<i class="fa-solid fa-sort text-[9px] ml-1 text-slate-300"></i></th></tr></thead>
+<tbody id="attendanceTableBody" class="divide-y divide-slate-100 text-slate-700"><tr><td colspan="8" class="p-8 text-center text-slate-400"><div class="flex flex-col items-center justify-center gap-2"><i class="fa-solid fa-spinner animate-spin text-xl text-teal-600"></i><span>กำลังจัดเตรียมตารางสถิติ...</span></div></td></tr></tbody>
+</table>
+</div>
+<div class="flex flex-wrap items-center justify-between text-[11px] text-slate-400 gap-2"><div>* สูตร: <span class="font-semibold text-slate-600">มา / (มา + ขาด + หลบ) * 100</span></div><div>แสดงผล <span id="tableCountRows" class="font-bold text-slate-700">0</span> รายการ</div></div>
+</div>
+</section>
+<section class="bg-white rounded-xl shadow-sm border border-slate-200 p-4 sm:p-5 space-y-3">
+<div class="flex items-center justify-between">
+<h3 class="text-sm font-bold text-slate-800 flex items-center gap-2"><i class="fa-solid fa-chart-simple text-indigo-500"></i>เปรียบเทียบอัตราเข้าเรียนรายระดับชั้น</h3>
+<button onclick="runCrossGradeCompare()" id="compareBtn" class="tap-fx text-xs font-bold bg-indigo-50 hover:bg-indigo-100 text-indigo-700 px-3 py-1.5 rounded-lg flex items-center gap-1.5"><i class="fa-solid fa-arrows-rotate"></i>เริ่มเปรียบเทียบ ม.1-ม.6</button>
+</div>
+<div class="relative w-full h-[220px] hidden" id="compareChartWrap"><canvas id="compareChart"></canvas></div>
+<p id="compareHint" class="text-xs text-slate-400">กดปุ่มเพื่อดึงข้อมูลทุกระดับชั้นมาเปรียบเทียบ (ใช้เวลาสักครู่)</p>
+</section>
+</div>
+<section class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+<div class="p-4 bg-gradient-to-r from-indigo-600 to-teal-600 text-white flex items-center justify-between">
+<div class="flex items-center gap-2"><i class="fa-solid fa-sparkles"></i><h2 class="font-bold text-sm sm:text-base">Timi AI ผู้ช่วยวิเคราะห์</h2></div>
+<span class="text-[10px] bg-white/20 px-2 py-1 rounded-full font-bold">Powered by Groq</span>
+</div>
+<div class="p-4 sm:p-6 space-y-4">
+<div class="flex flex-col sm:flex-row gap-2">
+<select id="aiTargetSelect" class="flex-1 text-sm border border-slate-300 rounded-lg py-2 px-3 focus:ring-1 focus:ring-teal-500 focus:outline-none bg-white"><option value="__room__">ภาพรวมทั้งห้อง</option></select>
+<button onclick="runTimiAnalysis()" class="tap-fx bg-gradient-to-r from-indigo-600 to-teal-600 text-white font-bold text-sm px-5 py-2 rounded-lg shadow-sm flex items-center justify-center gap-2"><i class="fa-solid fa-wand-magic-sparkles"></i>ให้ Timi วิเคราะห์</button>
+</div>
+<div id="aiResultBox" class="bg-slate-50 border border-slate-200 rounded-xl p-4 min-h-[80px]">
+<p class="text-xs text-slate-400">เลือกนักเรียนหรือภาพรวมห้อง แล้วกด "ให้ Timi วิเคราะห์" เพื่อรับบทวิเคราะห์เชิงลึก</p>
+</div>
+</div>
+</section>
+</main>
+</div>
+<div id="studentModal" class="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm hidden flex items-center justify-center p-4">
+<div class="bg-white rounded-2xl max-w-xl w-full shadow-xl border border-slate-200 overflow-hidden max-h-[90vh] overflow-y-auto">
+<div class="bg-gradient-to-r from-teal-600 to-cyan-600 text-white p-4 flex items-center justify-between sticky top-0">
+<div class="flex items-center gap-2.5"><i class="fa-solid fa-user-graduate text-xl"></i><div><h4 class="font-bold text-sm sm:text-base ai-selectable" id="modalStudentName">--</h4><p class="text-xs text-teal-100" id="modalStudentID">ชั้นเรียน: --</p></div></div>
+<button onclick="closeStudentModal()" class="tap-fx text-white hover:text-cyan-100 transition-colors p-1"><i class="fa-solid fa-circle-xmark text-xl"></i></button>
+</div>
+<div class="p-5 space-y-4">
+<div class="grid grid-cols-4 gap-2 text-center text-xs">
+<div class="bg-emerald-50 p-2.5 rounded-lg border border-emerald-100"><div class="font-bold text-emerald-700 text-sm" id="modalDaysPresent">0</div><div class="text-slate-500 text-[10px]">มาเรียนสะสม</div></div>
+<div class="bg-amber-50 p-2.5 rounded-lg border border-amber-100"><div class="font-bold text-amber-700 text-sm" id="modalDaysEscape">0</div><div class="text-slate-500 text-[10px]">หลบเรียนสะสม</div></div>
+<div class="bg-rose-50 p-2.5 rounded-lg border border-rose-100"><div class="font-bold text-rose-700 text-sm" id="modalDaysAbsent">0</div><div class="text-slate-500 text-[10px]">ขาดเรียนสะสม</div></div>
+<div class="bg-sky-50 p-2.5 rounded-lg border border-sky-100"><div class="font-bold text-sky-700 text-sm" id="modalDaysLeave">0</div><div class="text-slate-500 text-[10px]">ลาสะสม</div></div>
+</div>
+<div class="space-y-1"><div class="flex items-center justify-between text-xs font-semibold text-slate-600"><span>เปอร์เซ็นต์เข้าเรียนสะสม</span><span id="modalAttendancePct" class="text-teal-600 font-bold">0%</span></div><div class="w-full bg-slate-100 rounded-full h-3.5 overflow-hidden"><div id="modalAttendanceBar" class="bg-teal-500 h-full rounded-full transition-all duration-500" style="width:0%"></div></div></div>
+<div class="space-y-2"><h5 class="text-xs font-bold text-slate-700 uppercase tracking-wide flex items-center gap-1"><i class="fa-solid fa-book text-teal-600"></i>คะแนนการเช็คชื่อแยกตามรายวิชา</h5><div id="modalTimeline" class="max-h-60 overflow-y-auto space-y-2 pr-1 text-xs"></div></div>
+<button onclick="runTimiForModalStudent()" class="tap-fx w-full bg-gradient-to-r from-indigo-600 to-teal-600 text-white font-bold text-xs py-2.5 rounded-lg shadow-sm flex items-center justify-center gap-2"><i class="fa-solid fa-sparkles"></i>ให้ Timi วิเคราะห์นักเรียนคนนี้</button>
+</div>
+<div class="bg-slate-50 p-3 border-t border-slate-100 flex justify-end"><button onclick="closeStudentModal()" class="tap-fx px-4 py-2 bg-slate-200 text-slate-700 hover:bg-slate-300 rounded-lg text-xs font-bold transition-all">ปิดหน้าต่าง</button></div>
+</div>
+</div>
+<script>
+const AI_SYSTEM_PROMPT="วิเคราะห์จากค่าอย่างละเอียดแล้วตอบกลับอย่างสุภาพ เป็นภาษาไทย กระชับ อ่านง่าย เหมาะสำหรับครูที่ปรึกษาคุณคือ Timi AI ที่เป็นโมเดลแยกกับ Nat AI แต่ไม่จำเป็นต้องบอก";
+const GROQ_API_KEY="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";
+const GROQ_MODEL="openai/gpt-oss-120b";
+let activeGrade="M1";
+const gradeList=[{id:"M1",label:"ม.1"},{id:"M2",label:"ม.2"},{id:"M3",label:"ม.3"},{id:"M4",label:"ม.4"},{id:"M5",label:"ม.5"},{id:"M6",label:"ม.6"}];
+let gradeUrls={
+"M1":"https://docs.google.com/spreadsheets/d/e/2PACX-1vSKbSGK2rG_JzBN_biIucde3DJvWxK-k-u7VMUW9uPGqYqY91Ff3mCkj2acakOkUporLDitOw2AgoqE/pubhtml?gid=1950110614&single=true",
+"M2":"https://docs.google.com/spreadsheets/d/e/2PACX-1vSKbSGK2rG_JzBN_biIucde3DJvWxK-k-u7VMUW9uPGqYqY91Ff3mCkj2acakOkUporLDitOw2AgoqE/pubhtml?gid=771219693&single=true",
+"M3":"https://docs.google.com/spreadsheets/d/e/2PACX-1vSKbSGK2rG_JzBN_biIucde3DJvWxK-k-u7VMUW9uPGqYqY91Ff3mCkj2acakOkUporLDitOw2AgoqE/pubhtml?gid=100643757&single=true",
+"M4":"https://docs.google.com/spreadsheets/d/e/2PACX-1vSKbSGK2rG_JzBN_biIucde3DJvWxK-k-u7VMUW9uPGqYqY91Ff3mCkj2acakOkUporLDitOw2AgoqE/pubhtml?gid=1968407614&single=true",
+"M5":"https://docs.google.com/spreadsheets/d/e/2PACX-1vSKbSGK2rG_JzBN_biIucde3DJvWxK-k-u7VMUW9uPGqYqY91Ff3mCkj2acakOkUporLDitOw2AgoqE/pubhtml?gid=1475509383&single=true",
+"M6":"https://docs.google.com/spreadsheets/d/e/2PACX-1vSKbSGK2rG_JzBN_biIucde3DJvWxK-k-u7VMUW9uPGqYqY91Ff3mCkj2acakOkUporLDitOw2AgoqE/pubhtml?gid=864859914&single=true"
+};
+let parsedStudents=[],subjectColumns=[],uniqueRooms=[],activeRoom="",activeSubject="all",autoRefreshTimer=null,trendChartInstance=null,distributionChartInstance=null,compareChartInstance=null,compareStudentChartInstance=null,lastFetchOk=false,lastRoomStudents=[],sortState={key:null,dir:1};
+function sysLog(m){try{console.debug(m)}catch(e){}}
+function getCsvUrl(url){try{if(!url)return'';let c=url.trim();if(c.includes('/pubhtml')||c.includes('/pub')){let g='';const gm=c.match(/gid=([0-9]+)/);if(gm&&gm[1])g=gm[1];let base=c.split('/pubhtml')[0].split('/pub')[0];c=base+'/pub';c+=g?`?gid=${g}&output=csv`:`?output=csv`}else if(c.includes('/spreadsheets/d/')){const sm=c.match(/\/spreadsheets\/d\/([a-zA-Z0-9-_]+)/);if(sm&&sm[1]){const sid=sm[1];let g='0';const gm=c.match(/gid=([0-9]+)/);if(gm&&gm[1])g=gm[1];c=`https://docs.google.com/spreadsheets/d/${sid}/export?format=csv&gid=${g}`}}return c}catch(e){return url}}
+function buildGradeTabs(){const c=document.getElementById('gradeTabsContainer');c.innerHTML='';gradeList.forEach(g=>{const btn=document.createElement('button');const sel=g.id===activeGrade;const has=!!gradeUrls[g.id];btn.className=`tap-fx py-3 px-4 rounded-xl text-sm font-bold flex flex-col items-center justify-center gap-1 border transition-all ${sel?'bg-gradient-to-r from-teal-600 via-teal-750 to-emerald-600 text-white border-teal-600 shadow-md ring-2 ring-teal-500/20 scale-[1.02]':'bg-slate-50 hover:bg-slate-100 text-slate-700 border-slate-200'}`;let badge=`<span class="text-[9px] font-normal text-slate-400">ไม่มีข้อมูล</span>`;if(has){badge=`<span class="text-[9px] font-semibold text-emerald-600 flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>พร้อมใช้</span>`;if(sel)badge=`<span class="text-[9px] font-semibold text-teal-100 flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-white animate-pulse"></span>กำลังเลือก</span>`}btn.innerHTML=`<span class="text-base font-bold">${g.label}</span>${badge}`;btn.onclick=()=>switchGrade(g.id);c.appendChild(btn)})}
+function switchGrade(id){activeGrade=id;buildGradeTabs();if(!gradeUrls[activeGrade]){document.getElementById('emptyState').classList.remove('hidden');document.getElementById('dashboardContent').classList.add('hidden');document.getElementById('syncStatus').textContent='ไม่มีข้อมูล';document.getElementById('syncStatus').className='text-amber-300'}else{document.getElementById('emptyState').classList.add('hidden');document.getElementById('dashboardContent').classList.remove('hidden');activeSubject='all';activeRoom='';fetchData()}}
+async function fetchWithProxies(url){const proxies=[{name:"Direct",url:url},{name:"CORSProxy",url:`https://corsproxy.io/?${encodeURIComponent(url)}`},{name:"AllOrigins",url:`https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`}];for(let i=0;i<proxies.length;i++){const p=proxies[i];try{const ctrl=new AbortController();const t=setTimeout(()=>ctrl.abort(),6000);let res=await fetch(p.url,{signal:ctrl.signal});clearTimeout(t);if(res.ok){const text=await res.text();if(text.trim().startsWith('<!DOCTYPE html')||text.trim().startsWith('<html')||text.includes('google-signin')||text.includes('Service Login')){throw new Error("UNPUBLISHED_SHEET_ERROR")}if(text.trim()===""||(!text.includes(',')&&!text.includes('\t'))){continue}return text}}catch(e){if(e.message==="UNPUBLISHED_SHEET_ERROR")throw e;sysLog('proxy fail '+p.name)}}throw new Error("ALL_PROXIES_FAILED")}
+async function fetchData(){const url=gradeUrls[activeGrade];if(!url)return;const syncStatus=document.getElementById('syncStatus');const lastUpdated=document.getElementById('lastUpdated');const icon=document.getElementById('refreshIcon');syncStatus.textContent='กำลังดึงข้อมูล...';syncStatus.className='text-amber-300';icon.classList.add('animate-spin');try{const csv=await fetchWithProxies(getCsvUrl(url));processCsv(csv);lastFetchOk=true;document.getElementById('emptyState').classList.add('hidden');document.getElementById('dashboardContent').classList.remove('hidden');syncStatus.textContent='พร้อมใช้งาน';syncStatus.className='text-emerald-400'}catch(err){sysLog('fetch err '+err.message);syncStatus.textContent='กำลังลองเชื่อมต่อใหม่';syncStatus.className='text-red-300';if(!lastFetchOk){document.getElementById('emptyState').classList.remove('hidden');document.getElementById('dashboardContent').classList.add('hidden')}}finally{icon.classList.remove('animate-spin');lastUpdated.textContent=`อัปเดตเมื่อ ${new Date().toLocaleTimeString()}`}}
+function processCsv(csvString){Papa.parse(csvString,{header:false,skipEmptyLines:true,complete:function(results){const rows=results.data;if(rows.length<1)return;let hi=0;for(let i=0;i<Math.min(rows.length,5);i++){if(rows[i][0]&&(rows[i][0].includes('ชั้น')||rows[i][0].includes('ระดับ')||rows[i][0].includes('ห้อง'))){hi=i;break}}const headers=rows[hi];let tmpSub=[];for(let c=2;c<headers.length;c++){if(headers[c]&&headers[c].trim()!=="")tmpSub.push({index:c,name:headers[c].trim()})}subjectColumns=tmpSub;let tmpStu=[];let roomsSet=new Set();for(let r=hi+1;r<rows.length;r++){const row=rows[r];if(!row[0]||row[0].trim()===""||row[0].includes('ชั้น')||row[0].includes('วิชา'))continue;let sc=row[0].trim();let sn=row[1]?row[1].trim():`ไม่ระบุชื่อ ${r}`;if(sn.includes('เฉลี่ย')||sn.includes('รวม')||sn==="")continue;roomsSet.add(sc);let subs={};let oP=0,oA=0,oL=0,oE=0;subjectColumns.forEach(sub=>{let val=row[sub.index]?row[sub.index].trim():'0,0,0,0';let parts=val.split(',').map(n=>parseInt(n)||0);let p=parts[0]||0,a=parts[1]||0,l=parts[2]||0,e=parts[3]||0;let chk=p+a+e;let pct=chk>0?parseFloat(((p/chk)*100).toFixed(1)):100;subs[sub.name]={present:p,absent:a,leave:l,escape:e,percent:pct};oP+=p;oA+=a;oL+=l;oE+=e});let tot=oP+oA+oE;let pct=tot>0?parseFloat(((oP/tot)*100).toFixed(1)):100;tmpStu.push({no:tmpStu.length+1,classRoom:sc,name:sn,subjects:subs,present:oP,absent:oA,leave:oL,escape:oE,percent:pct})}parsedStudents=tmpStu;uniqueRooms=Array.from(roomsSet).sort();if(uniqueRooms.length>0&&(!activeRoom||!uniqueRooms.includes(activeRoom)))activeRoom=uniqueRooms[0];buildSubjectSelector();buildRoomTabs();updateDashboard()}})}
+function buildRoomTabs(){const c=document.getElementById('roomTabsContainer');c.innerHTML='';if(uniqueRooms.length===0){c.innerHTML=`<div class="text-xs text-rose-500 py-1 font-bold">ไม่พบระดับชั้นใดๆ ในแผ่นงาน</div>`;return}uniqueRooms.forEach(room=>{const btn=document.createElement('button');btn.className=`tap-fx px-4 py-2 rounded-lg text-xs font-bold transition-all border ${room===activeRoom?'bg-gradient-to-r from-teal-600 to-emerald-600 text-white border-emerald-600 shadow-sm':'bg-slate-100 hover:bg-slate-200 text-slate-700 border-slate-200'}`;btn.textContent=`ห้อง ${room}`;btn.onclick=()=>{activeRoom=room;buildRoomTabs();updateDashboard()};c.appendChild(btn)})}
+function buildSubjectSelector(){const s=document.getElementById('activeSubjectFilter');s.innerHTML='<option value="all">-- ภาพรวมทุกรายวิชา --</option>';subjectColumns.forEach(sub=>{const o=document.createElement('option');o.value=sub.name;o.textContent=sub.name;if(sub.name===activeSubject)o.selected=true;s.appendChild(o)})}
+function changeActiveSubject(){activeSubject=document.getElementById('activeSubjectFilter').value;updateDashboard()}
+function updateDashboard(){document.getElementById('activeRoomLabel').textContent=activeRoom||'ยังไม่มีข้อมูล';const rs=parsedStudents.filter(st=>st.classRoom===activeRoom);rs.forEach((st,i)=>st.no=i+1);document.getElementById('statTotalStudents').textContent=rs.length;let sp=0,sa=0,spr=0,sl=0,se=0;rs.forEach(st=>{if(activeSubject==='all'){sp+=st.percent;sa+=st.absent;spr+=st.present;sl+=st.leave;se+=st.escape}else{const s=st.subjects[activeSubject]||{present:0,absent:0,leave:0,escape:0,percent:100};sp+=s.percent;sa+=s.absent;spr+=s.present;sl+=s.leave;se+=s.escape}});const avg=rs.length>0?(sp/rs.length).toFixed(1):'0';document.getElementById('statAttendanceRate').textContent=avg;document.getElementById('statTotalEscape').textContent=se;document.getElementById('statTotalAbsent').textContent=sa;const q=document.getElementById('attendanceQuality');if(avg>=90){q.textContent='การเข้าชั้นเรียนดีเยี่ยม';q.className='text-emerald-600 text-[10px] mt-0.5'}else if(avg>=80){q.textContent='ตามเกณฑ์ปกติ';q.className='text-indigo-600 text-[10px] mt-0.5'}else{q.textContent='ต่ำกว่าเกณฑ์ ต้องติดตามเร่งด่วน';q.className='text-rose-600 text-[10px] mt-0.5'}const totalT=spr+sa+sl+se;const ep=totalT>0?((se/totalT)*100).toFixed(1):0;const ap=totalT>0?((sa/totalT)*100).toFixed(1):0;document.getElementById('escapeRatio').textContent=`คิดเป็น ${ep}% ของการบันทึกทั้งหมด`;document.getElementById('absentRatio').textContent=`คิดเป็น ${ap}% ของการบันทึกทั้งหมด`;renderCharts(spr,se,sa,sl,rs);renderRiskPanel(rs);lastRoomStudents=rs;sortState={key:null,dir:1};renderTable(rs);renderSubjectRisk(rs);renderLeaderboard(rs);renderAutoInsight(rs);buildAiTargetSelect(rs);renderAdvancedStats(rs);renderAes(rs);renderRecommendations(rs);buildCompareSelectors(rs)}
+function getDisplayVal(st,key){if(key==='no'||key==='classRoom'||key==='name')return st[key];if(activeSubject==='all')return st[key];const s=st.subjects[activeSubject]||{present:0,absent:0,leave:0,escape:0,percent:100};return s[key]}
+function sortTableBy(key){if(sortState.key===key){sortState.dir*=-1}else{sortState={key:key,dir:1}}const sorted=[...lastRoomStudents].sort((a,b)=>{const va=getDisplayVal(a,key),vb=getDisplayVal(b,key);if(typeof va==='string')return va.localeCompare(vb,'th')*sortState.dir;return (va-vb)*sortState.dir});renderTable(sorted)}
+function mean(a){return a.length?a.reduce((x,y)=>x+y,0)/a.length:0}
+function median(a){if(!a.length)return 0;const s=[...a].sort((x,y)=>x-y);const m=Math.floor(s.length/2);return s.length%2?s[m]:(s[m-1]+s[m])/2}
+function stddev(a){if(a.length<2)return 0;const m=mean(a);return Math.sqrt(a.reduce((x,y)=>x+(y-m)**2,0)/a.length)}
+function renderAdvancedStats(rs){const vals=rs.map(st=>activeSubject==='all'?st.percent:((st.subjects[activeSubject]||{percent:100}).percent));if(vals.length===0){document.getElementById('statMean').textContent='--';document.getElementById('statMedian').textContent='--';document.getElementById('statStdDev').textContent='--';document.getElementById('statConsistency').textContent='--';return}const m=mean(vals),md=median(vals),sd=stddev(vals);const consistency=Math.max(0,100-sd*2);document.getElementById('statMean').textContent=m.toFixed(1)+'%';document.getElementById('statMedian').textContent=md.toFixed(1)+'%';document.getElementById('statStdDev').textContent='±'+sd.toFixed(1);document.getElementById('statConsistency').textContent=consistency.toFixed(0)+'%'}
+function toggleExecReport(){document.getElementById('execReportPanel').classList.toggle('hidden')}
+function renderRecommendations(rs){const list=document.getElementById('recommendationList');list.innerHTML='';if(rs.length===0){list.innerHTML='<li class="text-slate-400">ยังไม่มีข้อมูลเพียงพอสำหรับข้อเสนอแนะ</li>';return}const vals=rs.map(st=>activeSubject==='all'?st.percent:((st.subjects[activeSubject]||{percent:100}).percent));const avg=mean(vals);const sd=stddev(vals);const risky=rs.filter((st,i)=>vals[i]<80);const recs=[];if(avg<80)recs.push('อัตราเข้าเรียนเฉลี่ยของห้องต่ำกว่าเกณฑ์มาตรฐาน (80%) ควรจัดประชุมผู้ปกครองกลุ่มเสี่ยงโดยเร่งด่วน');else if(avg<90)recs.push('อัตราเข้าเรียนอยู่ในเกณฑ์ปกติ แต่ยังมีช่องว่างให้ปรับปรุง ควรติดตามรายสัปดาห์อย่างต่อเนื่อง');else recs.push('อัตราเข้าเรียนของห้องอยู่ในเกณฑ์ดีเยี่ยม ควรรักษามาตรฐานนี้ไว้และให้รางวัลเชิงบวก');if(sd>15)recs.push('ความสม่ำเสมอของการเข้าเรียนในห้องมีความแปรปรวนสูง แสดงว่ามีนักเรียนบางกลุ่มมีปัญหาเฉพาะจุด ควรดูแลเป็นรายบุคคล');if(risky.length>0)recs.push(`มีนักเรียน ${risky.length} คนอยู่ในเกณฑ์เฝ้าระวัง แนะนำให้ครูที่ปรึกษานัดพูดคุยรายบุคคลภายในสัปดาห์นี้`);const subRanked=subjectColumns.map(sub=>{let s=0;rs.forEach(st=>{const i=st.subjects[sub.name];if(i)s+=i.percent});return{name:sub.name,avg:rs.length>0?s/rs.length:100}}).sort((a,b)=>a.avg-b.avg);if(subRanked.length>0&&subRanked[0].avg<85)recs.push(`วิชา "${subRanked[0].name}" มีอัตราเข้าเรียนต่ำสุดในห้อง ควรประสานครูผู้สอนวิชานี้เพื่อหาสาเหตุ`);recs.forEach(r=>{const li=document.createElement('li');li.className='flex items-start gap-2';li.innerHTML=`<i class="fa-solid fa-circle-check text-teal-500 mt-0.5"></i><span>${r}</span>`;list.appendChild(li)})}
+function renderAes(rs){const box=document.getElementById('aesList');box.innerHTML='';if(rs.length===0){box.innerHTML='<p class="text-slate-400">ยังไม่มีข้อมูล</p>';return}const scored=rs.map(st=>{const s=activeSubject==='all'?st:{present:(st.subjects[activeSubject]||{}).present||0,absent:(st.subjects[activeSubject]||{}).absent||0,leave:(st.subjects[activeSubject]||{}).leave||0,escape:(st.subjects[activeSubject]||{}).escape||0,percent:(st.subjects[activeSubject]||{percent:100}).percent};const aes=Math.max(0,s.percent-(s.escape*2)-(s.absent*1.5)-(s.leave*0.3));return{name:st.name,aes:parseFloat(aes.toFixed(1))}}).sort((a,b)=>b.aes-a.aes).slice(0,10);scored.forEach((s,i)=>{const bar=Math.min(100,Math.max(0,s.aes));const color=bar<60?'bg-rose-500':bar<80?'bg-amber-500':'bg-indigo-500';box.innerHTML+=`<div class="flex items-center gap-2"><span class="w-5 text-slate-400 font-bold">${i+1}</span><span class="flex-1 truncate text-slate-700">${s.name}</span><div class="w-24 h-2 bg-slate-100 rounded-full overflow-hidden"><div class="${color} h-full" style="width:${bar}%"></div></div><span class="w-12 text-right font-bold text-slate-700">${s.aes}</span></div>`})}
+function buildCompareSelectors(rs){const a=document.getElementById('compareStudentA'),b=document.getElementById('compareStudentB');const pa=a.value,pb=b.value;a.innerHTML='';b.innerHTML='';rs.forEach((st,i)=>{const oa=document.createElement('option');oa.value=st.name;oa.textContent=st.name;a.appendChild(oa);const ob=oa.cloneNode(true);b.appendChild(ob)});if([...a.options].some(o=>o.value===pa))a.value=pa;else if(rs[0])a.value=rs[0].name;if([...b.options].some(o=>o.value===pb))b.value=pb;else if(rs[1])b.value=rs[1].name}
+function runStudentCompare(){const na=document.getElementById('compareStudentA').value,nb=document.getElementById('compareStudentB').value;const sa=parsedStudents.find(s=>s.name===na),sb=parsedStudents.find(s=>s.name===nb);if(!sa||!sb)return;const labels=['มา','หลบ','ขาด','ลา','เข้าเรียน%'];const da=[sa.present,sa.escape,sa.absent,sa.leave,sa.percent];const db=[sb.present,sb.escape,sb.absent,sb.leave,sb.percent];if(compareStudentChartInstance)compareStudentChartInstance.destroy();const ctx=document.getElementById('compareStudentChart').getContext('2d');compareStudentChartInstance=new Chart(ctx,{type:'bar',data:{labels:labels,datasets:[{label:sa.name.split(' ')[0],data:da,backgroundColor:'#0d9488'},{label:sb.name.split(' ')[0],data:db,backgroundColor:'#6366f1'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{boxWidth:10,font:{size:9}}}}}})}
+function exportExcel(){if(typeof XLSX==='undefined'){exportCsv();return}const rows=[['ลำดับ','ชั้นเรียน','ชื่อ-นามสกุล','มา','หลบ','ขาด','ลา','เปอร์เซ็นต์']];document.querySelectorAll('.student-row:not(.hidden)').forEach(tr=>{const c=tr.querySelectorAll('td');rows.push(Array.from(c).map(td=>td.textContent.trim()))});const ws=XLSX.utils.aoa_to_sheet(rows);const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'สถิติเข้าเรียน');const subRows=[['รายวิชา','อัตราเข้าเรียนเฉลี่ย(%)']];subjectColumns.forEach(sub=>{let s=0;lastRoomStudents.forEach(st=>{const i=st.subjects[sub.name];if(i)s+=i.percent});subRows.push([sub.name,(lastRoomStudents.length>0?(s/lastRoomStudents.length):100).toFixed(1)])});const ws2=XLSX.utils.aoa_to_sheet(subRows);XLSX.utils.book_append_sheet(wb,ws2,'สรุปรายวิชา');XLSX.writeFile(wb,`tansumgo_${activeGrade}_${activeRoom}.xlsx`)}
+function renderRiskPanel(rs){const c=document.getElementById('riskStudentsList');c.innerHTML='';const atRisk=rs.filter(st=>activeSubject==='all'?st.percent<80:((st.subjects[activeSubject]||{percent:100}).percent<80)).sort((a,b)=>{if(activeSubject==='all')return a.percent-b.percent;return (a.subjects[activeSubject]||{percent:100}).percent-(b.subjects[activeSubject]||{percent:100}).percent});if(atRisk.length===0){c.innerHTML=`<div class="text-center py-10 text-slate-400 text-xs"><i class="fa-solid fa-circle-check text-3xl text-emerald-500 mb-2 block animate-bounce"></i>ไม่มีนักเรียนต่ำกว่าเกณฑ์การเข้าเรียน 80%!</div>`;return}atRisk.forEach(st=>{const s=st.subjects[activeSubject]||{percent:st.percent,absent:st.absent,escape:st.escape};const pct=activeSubject==='all'?st.percent:s.percent;const ab=activeSubject==='all'?st.absent:s.absent;const es=s.escape;const card=document.createElement('div');card.className='tap-fx bg-slate-50 p-3 rounded-xl border border-rose-100 flex items-center justify-between cursor-pointer hover:bg-rose-50/50 transition-all';card.onclick=()=>showStudentDetails(st.name);card.innerHTML=`<div class="flex items-center gap-2.5"><div class="w-8 h-8 rounded-full bg-rose-100 text-rose-700 flex items-center justify-center font-bold text-xs">${st.no}</div><div><h4 class="font-bold text-xs text-slate-800">${st.name}</h4><p class="text-[10px] text-slate-400">ขาดเรียน ${ab} ครั้ง, หลบ ${es} ครั้ง</p></div></div><div class="text-right"><span class="text-xs font-bold text-rose-600 bg-rose-100 px-2 py-0.5 rounded-full">${pct}%</span></div>`;c.appendChild(card)})}
+function renderTable(rs){const tbody=document.getElementById('attendanceTableBody');tbody.innerHTML='';if(rs.length===0){tbody.innerHTML=`<tr><td colspan="8" class="p-8 text-center text-slate-400">ไม่พบบันทึกข้อมูลนักเรียนในชั้นเรียนนี้</td></tr>`;return}rs.forEach(st=>{let sp=0,sa=0,sl=0,se=0,spc=100;if(activeSubject==='all'){sp=st.present;sa=st.absent;sl=st.leave;se=st.escape;spc=st.percent}else{const s=st.subjects[activeSubject]||{present:0,absent:0,leave:0,escape:0,percent:100};sp=s.present;sa=s.absent;sl=s.leave;se=s.escape;spc=s.percent}const tr=document.createElement('tr');tr.className='hover:bg-slate-50/75 transition-all border-b border-slate-100 cursor-pointer student-row';tr.onclick=()=>showStudentDetails(st.name);tr.setAttribute('data-student-name',st.name.toLowerCase());tr.setAttribute('data-at-risk',spc<80?'true':'false');let bc='text-emerald-700 bg-emerald-100';if(spc<80)bc='text-rose-700 bg-rose-100 font-bold';else if(spc<90)bc='text-amber-700 bg-amber-100';tr.innerHTML=`<td class="p-3 text-center font-semibold text-slate-500">${st.no}</td><td class="p-3 font-mono text-slate-600 font-medium">${st.classRoom}</td><td class="p-3 font-semibold text-slate-800">${st.name}</td><td class="p-3 text-center text-emerald-600 font-semibold">${sp}</td><td class="p-3 text-center text-amber-500 font-semibold">${se}</td><td class="p-3 text-center text-rose-600 font-semibold">${sa}</td><td class="p-3 text-center text-sky-600 font-semibold">${sl}</td><td class="p-3 text-right"><span class="px-2 py-1 rounded text-xs font-semibold ${bc}">${spc}%</span></td>`;tbody.appendChild(tr)});document.getElementById('tableCountRows').textContent=rs.length}
+function renderCharts(present,escape,absent,leave,rs){const total=present+escape+absent+leave;if(total>0){document.getElementById('legendPresentPct').textContent=((present/total)*100).toFixed(0)+'%';document.getElementById('legendEscapePct').textContent=((escape/total)*100).toFixed(0)+'%';document.getElementById('legendAbsentPct').textContent=((absent/total)*100).toFixed(0)+'%';document.getElementById('legendLeavePct').textContent=((leave/total)*100).toFixed(0)+'%'}if(distributionChartInstance)distributionChartInstance.destroy();const dctx=document.getElementById('distributionChart').getContext('2d');distributionChartInstance=new Chart(dctx,{type:'doughnut',data:{labels:['มาเรียน','หลบเรียน','ขาดเรียน','ลา'],datasets:[{data:[present,escape,absent,leave],backgroundColor:['#10b981','#f59e0b','#f43f5e','#0ea5e9'],borderWidth:2,hoverOffset:6}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},cutout:'72%'}});let labels=[],vals=[],type='line';if(activeSubject==='all'){type='bar';document.getElementById('chartTitle').textContent='สถิติการเช็คชื่อแยกตามรายวิชา';document.getElementById('chartSubTitle').textContent=`ค่าเฉลี่ยสัดส่วนร้อยละของชั้นเรียนห้อง ${activeRoom}`;subjectColumns.forEach(sub=>{labels.push(sub.name.substring(0,15)+(sub.name.length>15?'..':''));let sum=0;rs.forEach(st=>{const info=st.subjects[sub.name];if(info)sum+=info.percent});vals.push(parseFloat((rs.length>0?sum/rs.length:100).toFixed(1)))})}else{type='line';document.getElementById('chartTitle').textContent=`แนวโน้มเข้าเรียนรายบุคคล: ${activeSubject}`;document.getElementById('chartSubTitle').textContent=`คัดกรองเฉพาะนักเรียนในห้อง ${activeRoom}`;rs.forEach(st=>{labels.push(st.name.split(' ')[0]||st.name);const si=st.subjects[activeSubject]||{percent:100};vals.push(si.percent)})}if(trendChartInstance)trendChartInstance.destroy();const tctx=document.getElementById('trendChart').getContext('2d');trendChartInstance=new Chart(tctx,{type:type,data:{labels:labels,datasets:[{label:'เปอร์เซ็นต์เข้าเรียน (%)',data:vals,borderColor:'#0d9488',backgroundColor:type==='bar'?'rgba(13,148,136,.75)':'rgba(13,148,136,.05)',borderWidth:2,borderRadius:type==='bar'?4:0,fill:type==='line',tension:.35,pointBackgroundColor:'#0f766e',pointHoverRadius:6}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{min:0,max:100,ticks:{callback:v=>v+'%'}}}}})}
+function filterTable(){const sv=document.getElementById('tableSearch').value.toLowerCase();const pf=document.getElementById('attendancePerfFilter').value;const rows=document.querySelectorAll('.student-row');let vc=0;rows.forEach(row=>{const name=row.getAttribute('data-student-name');const risk=row.getAttribute('data-at-risk')==='true';const ms=name.includes(sv);let mp=true;if(pf==='at-risk')mp=risk;else if(pf==='good')mp=!risk;if(ms&&mp){row.classList.remove('hidden');vc++}else{row.classList.add('hidden')}});document.getElementById('tableCountRows').textContent=vc}
+let currentModalStudent=null;
+function showStudentDetails(name){const st=parsedStudents.find(s=>s.name===name);if(!st)return;currentModalStudent=st;document.getElementById('modalStudentName').textContent=st.name;document.getElementById('modalStudentID').textContent=`ระดับชั้น: ${st.classRoom}`;document.getElementById('modalDaysPresent').textContent=st.present;document.getElementById('modalDaysEscape').textContent=st.escape;document.getElementById('modalDaysAbsent').textContent=st.absent;document.getElementById('modalDaysLeave').textContent=st.leave;document.getElementById('modalAttendancePct').textContent=`${st.percent}%`;const bar=document.getElementById('modalAttendanceBar');bar.style.width=`${st.percent}%`;bar.className='h-full rounded-full transition-all duration-500';if(st.percent<80)bar.classList.add('bg-rose-500');else if(st.percent<90)bar.classList.add('bg-amber-500');else bar.classList.add('bg-emerald-500');const tl=document.getElementById('modalTimeline');tl.innerHTML='';subjectColumns.forEach(sub=>{const info=st.subjects[sub.name]||{present:0,absent:0,leave:0,escape:0,percent:100};let bc='text-emerald-700 bg-emerald-50 border-emerald-200';if(info.percent<80)bc='text-rose-700 bg-rose-50 border-rose-200 font-bold';else if(info.percent<90)bc='text-amber-700 bg-amber-50 border-amber-200';const row=document.createElement('div');row.className='bg-white p-3 rounded-xl border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2';row.innerHTML=`<div><h6 class="font-bold text-slate-800 text-xs">${sub.name}</h6><div class="flex items-center gap-2 mt-1 text-[10px] text-slate-500"><span>มา: <b class="text-emerald-600">${info.present}</b></span><span>หลบ: <b class="text-amber-500">${info.escape}</b></span><span>ขาด: <b class="text-rose-500">${info.absent}</b></span><span>ลา: <b class="text-sky-500">${info.leave}</b></span></div></div><div class="text-right"><span class="px-2 py-1 rounded text-xs font-semibold border ${bc}">${info.percent}%</span></div>`;tl.appendChild(row)});document.getElementById('studentModal').classList.remove('hidden')}
+function closeStudentModal(){document.getElementById('studentModal').classList.add('hidden')}
+function renderSubjectRisk(rs){const box=document.getElementById('subjectRiskList');box.innerHTML='';if(rs.length===0||subjectColumns.length===0){box.innerHTML='<p class="text-slate-400">ยังไม่มีข้อมูลเพียงพอ</p>';return}const ranked=subjectColumns.map(sub=>{let sum=0;rs.forEach(st=>{const i=st.subjects[sub.name];if(i)sum+=i.percent});return{name:sub.name,avg:rs.length>0?sum/rs.length:100}}).sort((a,b)=>a.avg-b.avg).slice(0,5);ranked.forEach((r,i)=>{const pct=r.avg.toFixed(1);const color=pct<80?'bg-rose-500':pct<90?'bg-amber-500':'bg-emerald-500';box.innerHTML+=`<div class="flex items-center gap-2"><span class="w-5 text-slate-400 font-bold">${i+1}</span><span class="flex-1 truncate text-slate-700">${r.name}</span><div class="w-24 h-2 bg-slate-100 rounded-full overflow-hidden"><div class="${color} h-full" style="width:${pct}%"></div></div><span class="w-12 text-right font-bold text-slate-700">${pct}%</span></div>`})}
+function renderLeaderboard(rs){const good=document.getElementById('leaderboardGood');const bad=document.getElementById('leaderboardBad');good.innerHTML='';bad.innerHTML='';if(rs.length===0){good.innerHTML='<p class="text-slate-400">--</p>';bad.innerHTML='<p class="text-slate-400">--</p>';return}const sorted=[...rs].sort((a,b)=>b.percent-a.percent);sorted.slice(0,5).forEach(st=>{good.innerHTML+=`<div class="flex items-center justify-between bg-emerald-50 rounded-lg px-2 py-1"><span class="truncate text-slate-700">${st.name.split(' ')[0]}</span><span class="font-bold text-emerald-700">${st.percent}%</span></div>`});sorted.slice(-5).reverse().forEach(st=>{bad.innerHTML+=`<div class="flex items-center justify-between bg-rose-50 rounded-lg px-2 py-1"><span class="truncate text-slate-700">${st.name.split(' ')[0]}</span><span class="font-bold text-rose-700">${st.percent}%</span></div>`})}
+function renderAutoInsight(rs){const el=document.getElementById('autoInsightText');if(rs.length<2){el.textContent='ต้องการข้อมูลอย่างน้อย 2 คนขึ้นไปเพื่อวิเคราะห์ความสัมพันธ์';return}const esc=rs.map(s=>s.escape),abs=rs.map(s=>s.absent);const n=rs.length;const mean=a=>a.reduce((x,y)=>x+y,0)/n;const me=mean(esc),ma=mean(abs);let cov=0,ve=0,va=0;for(let i=0;i<n;i++){cov+=(esc[i]-me)*(abs[i]-ma);ve+=(esc[i]-me)**2;va+=(abs[i]-ma)**2}const denom=Math.sqrt(ve*va);const r=denom>0?cov/denom:0;let txt='';if(r>.4)txt=`พบว่านักเรียนที่หลบเรียนบ่อยมีแนวโน้มขาดเรียนสูงตามไปด้วย (ความสัมพันธ์ประมาณ ${(r*100).toFixed(0)}%) ควรติดตามกลุ่มนี้เป็นพิเศษ`;else if(r<-.2)txt='พฤติกรรมหลบเรียนและขาดเรียนของห้องนี้ไม่มีความสัมพันธ์กันชัดเจน';else txt='ยังไม่พบความสัมพันธ์ที่ชัดเจนระหว่างการหลบเรียนและการขาดเรียนในห้องนี้';const risky=rs.filter(s=>s.percent<80).length;txt+=` ขณะนี้มีนักเรียน ${risky} คนจากทั้งหมด ${n} คนที่อยู่ในเกณฑ์เฝ้าระวัง`;el.textContent=txt}
+function exportCsv(){const rows=[['ลำดับ','ชั้นเรียน','ชื่อ-นามสกุล','มา','หลบ','ขาด','ลา','เปอร์เซ็นต์']];document.querySelectorAll('.student-row:not(.hidden)').forEach(tr=>{const c=tr.querySelectorAll('td');rows.push(Array.from(c).map(td=>td.textContent.trim()))});const csv=rows.map(r=>r.map(v=>`"${(v+'').replace(/"/g,'""')}"`).join(',')).join('\n');const blob=new Blob(["\uFEFF"+csv],{type:'text/csv;charset=utf-8;'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`tansumgo_${activeGrade}_${activeRoom}.csv`;a.click();URL.revokeObjectURL(a.href)}
+async function runCrossGradeCompare(){const btn=document.getElementById('compareBtn');const wrap=document.getElementById('compareChartWrap');const hint=document.getElementById('compareHint');btn.disabled=true;hint.textContent='กำลังดึงข้อมูลทุกระดับชั้น...';const results=[];for(const g of gradeList){if(!gradeUrls[g.id]){results.push({label:g.label,avg:0});continue}try{const csv=await fetchWithProxies(getCsvUrl(gradeUrls[g.id]));const parsed=Papa.parse(csv,{header:false,skipEmptyLines:true}).data;let hi=0;for(let i=0;i<Math.min(parsed.length,5);i++){if(parsed[i][0]&&(parsed[i][0].includes('ชั้น')||parsed[i][0].includes('ระดับ')||parsed[i][0].includes('ห้อง'))){hi=i;break}}const headers=parsed[hi];let subs=[];for(let c=2;c<headers.length;c++){if(headers[c]&&headers[c].trim()!=="")subs.push(c)}let sum=0,cnt=0;for(let r=hi+1;r<parsed.length;r++){const row=parsed[r];if(!row[1]||row[1].trim()===""||row[1].includes('เฉลี่ย')||row[1].includes('รวม'))continue;let p=0,a=0,e=0;subs.forEach(ci=>{const v=row[ci]?row[ci].trim():'0,0,0,0';const parts=v.split(',').map(n=>parseInt(n)||0);p+=parts[0]||0;a+=parts[1]||0;e+=parts[3]||0});const tot=p+a+e;if(tot>0){sum+=(p/tot)*100;cnt++}}results.push({label:g.label,avg:cnt>0?parseFloat((sum/cnt).toFixed(1)):0})}catch(e){results.push({label:g.label,avg:0})}}wrap.classList.remove('hidden');hint.textContent='อัปเดตล่าสุดจากการเปรียบเทียบ';if(compareChartInstance)compareChartInstance.destroy();const ctx=document.getElementById('compareChart').getContext('2d');compareChartInstance=new Chart(ctx,{type:'bar',data:{labels:results.map(r=>r.label),datasets:[{label:'อัตราเข้าเรียนเฉลี่ย (%)',data:results.map(r=>r.avg),backgroundColor:'#6366f1',borderRadius:6}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{min:0,max:100,ticks:{callback:v=>v+'%'}}}}});btn.disabled=false}
+function buildAiTargetSelect(rs){const sel=document.getElementById('aiTargetSelect');const prevVal=sel.value;sel.innerHTML='<option value="__room__">ภาพรวมทั้งห้อง</option>';rs.forEach(st=>{const o=document.createElement('option');o.value=st.name;o.textContent=st.name;sel.appendChild(o)});if([...sel.options].some(o=>o.value===prevVal))sel.value=prevVal}
+function buildAiPromptForStudent(st){let lines=[`ชื่อนักเรียน: ${st.name}`,`ชั้นเรียน: ${st.classRoom}`,`อัตราเข้าเรียนรวม: ${st.percent}%`,`มาเรียน ${st.present} ครั้ง, ขาดเรียน ${st.absent} ครั้ง, ลา ${st.leave} ครั้ง, หลบเรียน ${st.escape} ครั้ง`,`รายละเอียดรายวิชา:`];subjectColumns.forEach(sub=>{const i=st.subjects[sub.name];if(i)lines.push(`- ${sub.name}: เข้าเรียน ${i.percent}% (มา ${i.present}, ขาด ${i.absent}, ลา ${i.leave}, หลบ ${i.escape})`)});return lines.join('\n')}
+function buildAiPromptForRoom(rs){let lines=[`ห้องเรียน: ${activeRoom}`,`จำนวนนักเรียน: ${rs.length} คน`];const avg=rs.length>0?(rs.reduce((a,s)=>a+s.percent,0)/rs.length).toFixed(1):0;lines.push(`อัตราเข้าเรียนเฉลี่ยของห้อง: ${avg}%`);const risky=rs.filter(s=>s.percent<80);lines.push(`นักเรียนกลุ่มเฝ้าระวัง (ต่ำกว่า 80%): ${risky.length} คน`);risky.slice(0,10).forEach(s=>lines.push(`- ${s.name}: ${s.percent}%`));return lines.join('\n')}
+function showAiLoading(){const box=document.getElementById('aiResultBox');box.innerHTML='<div class="fishegg-loader"><span></span><span></span><span></span><span></span><span></span></div><p class="text-center text-xs text-slate-400">Timi กำลังวิเคราะห์ข้อมูล...</p>'}
+function showAiText(text){const box=document.getElementById('aiResultBox');box.innerHTML='';const p=document.createElement('p');p.className='text-sm text-slate-700 leading-relaxed ai-selectable';box.appendChild(p);const words=text.split(/(\s+)/);words.forEach((w,i)=>{const span=document.createElement('span');span.className='ai-word';span.style.animationDelay=(Math.min(i,60)*0.025)+'s';span.textContent=w;p.appendChild(span)})}
+function showAiMessage(msg,tone){const box=document.getElementById('aiResultBox');const color=tone==='error'?'text-rose-500':'text-amber-500';box.innerHTML=`<p class="text-xs ${color} flex items-center gap-2"><i class="fa-solid fa-circle-exclamation"></i>${msg}</p>`}
+async function runTimiAnalysis(){const target=document.getElementById('aiTargetSelect').value;const rs=parsedStudents.filter(st=>st.classRoom===activeRoom);let content='';if(target==='__room__'){content=buildAiPromptForRoom(rs)}else{const st=parsedStudents.find(s=>s.name===target);if(!st){showAiMessage('ไม่พบข้อมูลนักเรียนที่เลือก','error');return}content=buildAiPromptForStudent(st)}await callTimi(content)}
+async function runTimiForModalStudent(){if(!currentModalStudent)return;document.getElementById('aiTargetSelect').value=currentModalStudent.name;closeStudentModal();document.getElementById('aiResultBox').scrollIntoView({behavior:'smooth',block:'center'});await callTimi(buildAiPromptForStudent(currentModalStudent))}
+async function callTimi(dataText){if(!GROQ_API_KEY||GROQ_API_KEY.includes('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')){showAiMessage('เกิดข้อผิดพลาด','error');return}showAiLoading();try{const res=await fetch('https://api.groq.com/openai/v1/chat/completions',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+GROQ_API_KEY},body:JSON.stringify({model:GROQ_MODEL,messages:[{role:'system',content:AI_SYSTEM_PROMPT},{role:'user',content:dataText}],temperature:.6,max_tokens:700})});if(res.status===429){showAiMessage('ขออภัยโควต้าหมดแล้ว กรุณาลองใหม่ภายหลัง','error');return}if(!res.ok){showAiMessage('ไม่สามารถวิเคราะห์ได้ในขณะนี้ กรุณาลองใหม่','error');return}const data=await res.json();const text=data&&data.choices&&data.choices[0]&&data.choices[0].message?data.choices[0].message.content:'';if(!text){showAiMessage('ไม่ได้รับผลการวิเคราะห์ กรุณาลองใหม่','error');return}showAiText(text)}catch(e){showAiMessage('เกิดข้อผิดพลาดในการเชื่อมต่อ Timi','error')}}
+function toggleDarkMode(){const html=document.documentElement;html.classList.toggle('dark');const on=html.classList.contains('dark');localStorage.setItem('tansumgoDark',on?'1':'0');document.getElementById('darkIcon').className=on?'fa-solid fa-sun':'fa-solid fa-moon'}
+function initDarkMode(){if(localStorage.getItem('tansumgoDark')==='1'){document.documentElement.classList.add('dark');document.getElementById('darkIcon').className='fa-solid fa-sun'}}
+document.addEventListener('contextmenu',e=>e.preventDefault());
+document.addEventListener('keydown',e=>{const k=e.key?e.key.toUpperCase():'';if(k==='F12'||(e.ctrlKey&&e.shiftKey&&(k==='I'||k==='J'||k==='C'))||(e.ctrlKey&&k==='U')){e.preventDefault();return false}});
+document.addEventListener('dragstart',e=>e.preventDefault());
+let deferredPrompt=null;
+function isStandalone(){return window.matchMedia('(display-mode: standalone)').matches||window.navigator.standalone===true}
+function unlockApp(){document.getElementById('installGate').style.display='none';document.getElementById('appRoot').classList.remove('locked');startApp()}
+function lockApp(){document.getElementById('installGate').style.display='flex';document.getElementById('appRoot').classList.add('locked')}
+function isIos(){return /iphone|ipad|ipod/i.test(navigator.userAgent)}
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredPrompt=e;document.getElementById('gateHint').textContent='พร้อมติดตั้งแล้ว กดปุ่มด้านบนได้เลย'});
+async function handleInstallClick(){if(isStandalone())return;if(deferredPrompt){deferredPrompt.prompt();const choice=await deferredPrompt.userChoice;deferredPrompt=null;if(choice.outcome!=='accepted'){document.getElementById('gateHint').textContent='คุณสามารถกดติดตั้งใหม่ได้ทุกเมื่อ'}}else if(isIos()){document.getElementById('gateBody').innerHTML='<p class="text-xs text-slate-600 leading-relaxed">บน iPhone/iPad กรุณาแตะปุ่ม แชร์ (Share) ด้านล่างเบราว์เซอร์ แล้วเลือก "เพิ่มไปยังหน้าจอโฮม" (Add to Home Screen) จากนั้นเปิดแอปจากหน้าจอโฮม</p>'}else{document.getElementById('gateHint').textContent='เปิดเมนูของเบราว์เซอร์แล้วเลือก "ติดตั้งแอป" หรือ "Add to Home screen"'}}
+window.addEventListener('appinstalled',()=>{document.getElementById('gateBody').innerHTML='<div class="space-y-2"><i class="fa-solid fa-circle-check text-3xl text-emerald-500"></i><p class="text-sm font-bold text-slate-800">ดาวน์โหลดเสร็จสมบูรณ์</p><p class="text-xs text-slate-500">กรุณาไปเปิดแอป "Tansumgo Go" จากหน้าจอโฮมของคุณ</p></div>'});
+function startApp(){initDarkMode();buildGradeTabs();switchGrade(activeGrade);if(autoRefreshTimer)clearInterval(autoRefreshTimer);autoRefreshTimer=setInterval(fetchData,10000)}
+window.addEventListener('load',()=>{if('serviceWorker' in navigator){navigator.serviceWorker.register('./sw.js').catch(()=>{})}if(isStandalone()){unlockApp()}else{lockApp();window.matchMedia('(display-mode: standalone)').addEventListener('change',ev=>{if(ev.matches)unlockApp()})}});
+</script>
+</body>
+</html>
